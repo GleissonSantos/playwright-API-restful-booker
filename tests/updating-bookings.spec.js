@@ -25,6 +25,7 @@ test('Atualizando parcialmente os dados de uma reserva', async ({request}) => {
 
   console.log("Seu token é:" + tokenRecebido);
 
+  // Criando uma nova reserva para depois atualizar
   const registerBooking = await request.post('/booking/', {
     data: {
     "firstname": "Toshio",
