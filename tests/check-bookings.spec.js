@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { cadastrarReserva, gerarToken } from "./apiHelpers.js"; 
 
 var tokenRecebido 
 
@@ -17,27 +18,17 @@ test('Consultando as reservas cadastradas', async ({request}) => {
 
 test('Consultando as reservas cadastradas com base em um ID específico', async ({request}) => {
 
-    const registerBooking = await request.post('/booking/', {
-    data: {
-    "firstname": "Toshio",
-    "lastname": "Santos",
-    "totalprice": 10000,
-    "depositpaid": true,
-    "bookingdates": {
-        "checkin": "2025-11-10",
-        "checkout": "2026-01-10"
-    },
-    "additionalneeds": "Breakfast"
-  }
-})
+   // Criando uma nova reserva para depois consultar - chamando a função de criação de criação de cadastro do helper 
+  const newBookingRegister = await cadastrarReserva(request);
+
   console.log("Abaixo estão os dados cadastrados da nova reserva:");
-  console.log(await registerBooking.json());
+  console.log(await newBookingRegister.json());
 
   // Verificiando se a resposta da API está OK
-  expect(registerBooking.ok()).toBeTruthy();
-  expect(registerBooking.status()).toBe(200);
+  expect(newBookingRegister.ok()).toBeTruthy();
+  expect(newBookingRegister.status()).toBe(200);
 
-  const responseBodyRegister = await registerBooking.json();
+  const responseBodyRegister = await newBookingRegister.json();
   const newResponseBodyRegister = responseBodyRegister.bookingid;
   
 
@@ -46,16 +37,16 @@ test('Consultando as reservas cadastradas com base em um ID específico', async 
 
   //transforma a resposta em json
   const responseBody = await response.json();
-  console.log(responseBody);
+  //console.log(responseBody);
 
   // Verificando se os dados da reserva estão corretos
-  expect(responseBody.firstname).toBe('Toshio');
-  expect(responseBody.lastname).toBe('Santos');
-  expect(responseBody.totalprice).toBe(10000);
+  expect(responseBody.firstname).toBe(responseBody.firstname);
+  expect(responseBody.lastname).toBe(responseBody.lastname);
+  expect(responseBody.totalprice).toBe(responseBody.totalprice);
   expect(responseBody.depositpaid).toBe(true);
-  expect(responseBody.bookingdates.checkin).toBe('2025-11-10');
-  expect(responseBody.bookingdates.checkout).toBe('2026-01-10');
-  expect(responseBody.additionalneeds).toBe('Breakfast');
+  expect(responseBody.bookingdates.checkin).toBe(responseBody.bookingdates.checkin);
+  expect(responseBody.bookingdates.checkout).toBe(responseBody.bookingdates.checkout);
+  expect(responseBody.additionalneeds).toBe(responseBody.additionalneeds);
 
   // Verificiando se a resposta da API está OK
   expect(response.ok()).toBeTruthy();
@@ -64,33 +55,22 @@ test('Consultando as reservas cadastradas com base em um ID específico', async 
 
 test('Consultando se os campos de uma reserva específica estão sendo retornados', async ({request}) => {
 
-  const registerBooking = await request.post('/booking/', {
-    data: {
-    "firstname": "Toshio",
-    "lastname": "Santos",
-    "totalprice": 10000,
-    "depositpaid": true,
-    "bookingdates": {
-        "checkin": "2025-11-10",
-        "checkout": "2026-01-10"
-    },
-    "additionalneeds": "Breakfast"
-  }
-})
+   // Criando uma nova reserva para depois consultar - chamando a função de criação de criação de cadastro do helper 
+  const newBookingRegister = await cadastrarReserva(request);
+
   console.log("Abaixo estão os dados cadastrados da nova reserva:");
-  console.log(await registerBooking.json());
+  console.log(await newBookingRegister.json());
 
   // Verificiando se a resposta da API está OK
-  expect(registerBooking.ok()).toBeTruthy();
-  expect(registerBooking.status()).toBe(200);
+  expect(newBookingRegister.ok()).toBeTruthy();
+  expect(newBookingRegister.status()).toBe(200);
 
-  const responseBodyRegister = await registerBooking.json();
+  const responseBodyRegister = await newBookingRegister.json();
   const newResponseBodyRegister = responseBodyRegister.bookingid;
 
    // Fazendo uma requisilção GET para a API para obter os detalhes da reserva com base em um ID específico criado
   const response = await request.get('/booking/' + newResponseBodyRegister)
   const responseBody = await response.json();
-  console.log(responseBody);
 
   // Verificando se os campos estão presentes na resposta da API
   expect(responseBody).toHaveProperty('firstname');

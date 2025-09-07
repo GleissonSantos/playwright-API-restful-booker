@@ -1,63 +1,30 @@
 import { test, expect } from "@playwright/test";
+import { cadastrarReserva, gerarToken } from "./apiHelpers.js";
 
-var tokenRecebido 
+var newTokenRecebido 
 
 test('Atualizando parcialmente os dados de uma reserva', async ({request}) => {
 
-  // criando o token 
-  const response = await request.post('/auth', {
-    data: {
-      "username": "admin",
-      "password": "password123"
-    }
-  });
+  // Criando uma nova reserva para depois atualizar - chamando a função do helper de cadastro
+  const newBookingRegister = await cadastrarReserva(request);
+  const idNewRegister = (await newBookingRegister.json()).bookingid;
 
-  console.log(await response.json());
+  // Criando o token - chamando a função do helper de token
+  const createNewToken = await gerarToken(request);
+  console.log(await createNewToken.json());
 
-   // Verificando se a resposta da API está OK
-
-  expect(response.ok()).toBeTruthy();
-  expect(response.status()).toBe(200);
-
-  const responseBody = await response.json();
-
-  tokenRecebido = responseBody.token;
-
-  console.log("Seu token é:" + tokenRecebido);
-
-  // Criando uma nova reserva para depois atualizar
-  const registerBooking = await request.post('/booking/', {
-    data: {
-    "firstname": "Toshio",
-    "lastname": "Santos",
-    "totalprice": 10000,
-    "depositpaid": true,
-    "bookingdates": {
-        "checkin": "2025-11-10",
-        "checkout": "2026-01-10"
-    },
-    "additionalneeds": "Breakfast"
-  }
-})
-  console.log("Abaixo estão os dados cadastrados da nova reserva:");
-  console.log(await registerBooking.json());
-
-  // Verificiando se a resposta da API está OK
-  expect(response.ok()).toBeTruthy();
-  expect(response.status()).toBe(200);
-
-  const responseBodyRegister = await registerBooking.json();
-
-  const newResponseBodyRegister = responseBodyRegister.bookingid;
-
-
+  // Pegando o token do response 
+  const responseBody = await createNewToken.json();
+  newTokenRecebido = responseBody.token;
+  
+  // TESTE COMEÇA 
   // Atualizando dados da reserva:
-  const partialUpdateRequest = await request.patch('/booking/'+ newResponseBodyRegister, {
+  const partialUpdateRequest = await request.patch('/booking/'+ idNewRegister, {
 
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Cookie': `token=${tokenRecebido}`
+        'Cookie': `token=${newTokenRecebido}`
     },
 
     data: {
